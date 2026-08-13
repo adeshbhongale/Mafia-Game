@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overscroll-behavior: none;
+    background-color: #131313;
+    color: #e5e2e1;
+    font-family: 'Inter', sans-serif;
+  }
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.glass-panel {
+  background: rgba(42, 42, 42, 0.6);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 1s ease-out forwards;
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 30px rgba(255, 180, 168, 0.4);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes pulse-red {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(139, 0, 0, 0);
+  }
+  50% {
+    box-shadow: 0 0 40px 10px rgba(139, 0, 0, 0.3);
+  }
+}
+.pulse-red {
+  animation: pulse-red 2s ease-in-out infinite;
+}
+
+.glitch-text {
+  position: relative;
+}
+
+@keyframes glitch-anim {
+  0% {
+    clip: rect(44px, 450px, 56px, 0);
+  }
+  25% {
+    clip: rect(10px, 450px, 30px, 0);
+  }
+  50% {
+    clip: rect(60px, 450px, 80px, 0);
+  }
+  75% {
+    clip: rect(20px, 450px, 40px, 0);
+  }
+  100% {
+    clip: rect(44px, 450px, 56px, 0);
+  }
+}
+@keyframes glitch-anim2 {
+  0% {
+    clip: rect(30px, 450px, 50px, 0);
+  }
+  25% {
+    clip: rect(70px, 450px, 90px, 0);
+  }
+  50% {
+    clip: rect(0px, 450px, 20px, 0);
+  }
+  75% {
+    clip: rect(40px, 450px, 60px, 0);
+  }
+  100% {
+    clip: rect(30px, 450px, 50px, 0);
+  }
+}

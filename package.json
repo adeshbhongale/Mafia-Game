@@ -1,0 +1,16 @@
+{
+  "name": "mafia-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mafia multiplayer game — React frontend + Node/Socket.IO backend + Jitsi video",
+  "scripts": {
+    "postinstall": "npm install --prefix client && npm install --prefix server",
+    "build": "npm run build --prefix client",
+    "dev": "concurrently -n server,client -c red,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "start": "cross-env NODE_ENV=production node server/src/server.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3"
+  }
+}
