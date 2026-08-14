@@ -21,18 +21,18 @@ export default function Voting() {
   const cast = (p) => socketEmit('game:vote', { targetId: p.id });
 
   return (
-    <div className="flex flex-col w-full h-full pb-container-padding-desktop">
-      <div className="px-container-padding-mobile md:px-container-padding-desktop mt-stack-md flex justify-between items-end mb-stack-lg relative z-10">
+    <div className="flex flex-col w-full h-[calc(100vh-80px)] pb-container-padding-desktop">
+      <div className="px-container-padding-mobile md:px-container-padding-desktop mt-stack-md mb-stack-lg relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-stack-md">
         <div className="flex flex-col">
           <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-[0.2em] mb-unit">
             Current Phase
           </span>
-          <h1 className="font-display-lg text-display-lg text-on-background uppercase relative inline-block">
+          <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background uppercase relative inline-block">
             Vote
             <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-primary shadow-[0_0_10px_rgba(255,180,168,0.8)]"></div>
           </h1>
         </div>
-        <div className="flex flex-col items-end gap-2">
+        <div className="self-start md:self-auto flex flex-row md:flex-col items-center md:items-end gap-2 flex-wrap">
           <div className="flex items-center gap-stack-md bg-surface-container-high px-stack-md py-stack-sm rounded shadow-md relative overflow-hidden group">
             <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
             <span className="material-symbols-outlined text-primary animate-pulse">timer</span>
@@ -44,9 +44,9 @@ export default function Voting() {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-gutter px-container-padding-mobile md:px-container-padding-desktop flex-1 h-[calc(100vh-220px)] min-h-[600px]">
-        <div className="col-span-12 lg:col-span-8 flex flex-col gap-unit">
-          <div className="flex items-center justify-between mb-stack-sm">
+      <div className="flex flex-col lg:flex-row gap-gutter px-container-padding-mobile md:px-container-padding-desktop flex-1 min-h-0">
+        <div className="flex flex-col gap-unit flex-[1.3] lg:flex-1 lg:min-w-0 overflow-y-auto min-h-0">
+          <div className="flex items-center justify-between mb-stack-sm shrink-0">
             <h2 className="font-headline-md text-headline-md text-on-surface uppercase tracking-wider flex items-center gap-stack-sm">
               <span className="material-symbols-outlined text-primary">how_to_vote</span> Who Is Mafia?
             </h2>
@@ -102,11 +102,11 @@ export default function Voting() {
           )}
         </div>
 
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-gutter h-full">
-          <div className="h-2/5">
+        <div className="flex flex-col gap-gutter flex-1 min-h-0 lg:w-1/3 lg:flex-none lg:h-full">
+          <div className="h-24 lg:h-2/5 shrink-0 lg:shrink">
             <Roster />
           </div>
-          <div className="h-3/5">
+          <div className="flex-1 lg:h-3/5 min-h-0">
             <ChatPanel />
           </div>
         </div>
