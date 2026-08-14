@@ -514,6 +514,8 @@ export class GameEngine {
     });
     this.emitRoom(code);
     this.persist(code, { status: 'FINISHED', phase: 'GAME_OVER', winnerTeam: winner, endedAt: room.endedAt });
+    // A match has a winner — remove only this finished room's data, not others.
+    store.remove(code).catch(() => {});
   }
 
   // ---------- chat ----------

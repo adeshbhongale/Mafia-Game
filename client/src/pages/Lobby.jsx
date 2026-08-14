@@ -73,10 +73,28 @@ export default function Lobby() {
     navigate('/', { replace: true });
   };
 
-  // Host clicked Home / How to Play in the header → ask for discard first.
+  // Anyone clicked Home / How to Play in the header → confirm leaving first.
   const handleNavAttempt = (dest) => {
     setPendingNav(dest);
     setShowDiscard(true);
+  };
+
+  // Confirmed leaving from the header (host discards the room, others just leave).
+  const confirmNavLeave = async () => {
+    setShowDiscard(false);
+    setPendingNav(null);
+    if (session) {
+      if (isHost) {
+        socketEmit('room:discard', {});
+        await api.discardRoom(roomCode, session.playerId).catch(() => { });
+      } else {
+        socketEmit('room:leave', {});
+        await api.leaveRoom(roomCode, session.playerId).catch(() => { });
+      }
+    }
+    clearSession();
+    useGameStore.getState().resetGame();
+    navigate('/', { replace: true });
   };
 
   const closeDiscard = () => {
@@ -153,7 +171,7 @@ export default function Lobby() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header active="home" onBlockNav={isHost ? handleNavAttempt : undefined} />
+      <Header active="home" onBlockNav={handleNavAttempt} />
       <main className="relative pt-20 min-h-screen w-full bg-background">
         <div className="flex flex-col w-full relative min-h-[calc(100vh-80px)] overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,0,0,0.1)_0%,rgba(19,19,19,1)_80%)] z-0"></div>
@@ -332,7 +350,9 @@ export default function Lobby() {
               <h3 className="font-headline-md text-[20px] text-on-surface uppercase tracking-wider">Leave Room?</h3>
             </div>
             <p className="font-body-md text-on-surface-variant mt-stack-sm">
-              You are the host. {pendingNav ? 'Navigating away will permanently discard' : 'Leaving will permanently discard'} this room and remove every player. This cannot be undone.
+              {isHost
+                ? `You are the host. ${pendingNav ? 'Navigating away will permanently discard' : 'Leaving will permanently discard'} this room and remove every player. This cannot be undone.`
+                : 'Are you sure you want to leave the room and exit the game?'}
             </p>
             <div className="flex gap-gutter mt-stack-lg">
               <button
@@ -342,7 +362,7 @@ export default function Lobby() {
                 No
               </button>
               <button
-                onClick={discard}
+                onClick={confirmNavLeave}
                 className="flex-1 py-3 bg-error text-on-error font-label-caps uppercase tracking-widest rounded hover:opacity-90 transition-opacity"
               >
                 Yes
