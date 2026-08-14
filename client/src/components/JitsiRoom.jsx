@@ -21,9 +21,10 @@ function saveJitsiProfile(profile) {
   }
 }
 
-// Minimal Jitsi Meet embed: camera & mic off by default (people only appear /
-// talk when they explicitly enable them), and all distraction options removed
-// (screen share, mute-all, invite, recording, polls, fullscreen, branding...).
+// Google-Meet-style embed: everyone joins with audio & video ready and sees
+// everyone in a grid (tile view), with the mic/camera buttons to control their
+// own feed. Distraction options removed (screen share, mute-all, invite,
+// recording, polls, fullscreen, branding...).
 export default function JitsiRoom({ roomName, displayName, onEnd }) {
   const stored = loadJitsiProfile();
   return (
@@ -33,7 +34,7 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
         roomName={roomName}
         configOverwrite={{
           startWithAudioMuted: false,
-          startWithVideoMuted: true,
+          startWithVideoMuted: false,
           prejoinPageEnabled: false,
           disableInviteFunctions: true,
           disableRemoteMute: true,
@@ -70,12 +71,24 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
           externalApi.addEventListener('readyToClose', () => {
             if (onEnd) onEnd();
           });
+          let gridEnabled = false;
           externalApi.addEventListener('videoConferenceJoined', (event) => {
             saveJitsiProfile({
               displayName: event.displayName,
               email: event.email,
               avatarURL: event.avatarURL,
             });
+            // Show everyone in a grid (Google Meet style) once in the meeting.
+            if (!gridEnabled) {
+              gridEnabled = true;
+              setTimeout(() => {
+                try {
+                  externalApi.executeCommand('setTileView', true);
+                } catch {
+                  /* ignore */
+                }
+              }, 1200);
+            }
           });
         }}
         getIFrameRef={(iframeRef) => {

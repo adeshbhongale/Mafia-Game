@@ -11,6 +11,7 @@ export default function DoctorPanel() {
 
   const alive = (room?.players || []).filter((p) => p.alive);
   const select = (p) => socketEmit('doctor:save', { targetId: p.id });
+  const hasSaved = Boolean(myChoice);
 
   return (
     <div className="relative">
@@ -43,17 +44,24 @@ export default function DoctorPanel() {
                 onClick={() => select(p)}
                 selected={myChoice === p.id}
                 right={
-                  <button
-                    onClick={() => select(p)}
-                    className="px-6 py-2 rounded bg-secondary-container/30 hover:bg-secondary-container hover:shadow-[0_0_15px_rgba(255,219,60,0.4)] transition-all flex items-center gap-unit"
-                  >
-                    <span className="material-symbols-outlined text-secondary-fixed text-[18px] group-hover/btn:scale-110 transition-transform">
-                      favorite
-                    </span>
-                    <span className="font-label-caps text-label-caps text-secondary-fixed uppercase tracking-widest font-bold">
-                      Save
-                    </span>
-                  </button>
+                  !hasSaved || myChoice === p.id ? (
+                    <button
+                      onClick={() => select(p)}
+                      disabled={hasSaved}
+                      className={`px-6 py-2 rounded transition-all flex items-center gap-unit ${
+                        myChoice === p.id
+                          ? 'bg-secondary-container shadow-[0_0_15px_rgba(255,219,60,0.4)] cursor-default'
+                          : 'bg-secondary-container/30 hover:bg-secondary-container hover:shadow-[0_0_15px_rgba(255,219,60,0.4)]'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-secondary-fixed text-[18px] group-hover/btn:scale-110 transition-transform">
+                        favorite
+                      </span>
+                      <span className="font-label-caps text-label-caps text-secondary-fixed uppercase tracking-widest font-bold">
+                        {myChoice === p.id ? 'Saved' : 'Save'}
+                      </span>
+                    </button>
+                  ) : null
                 }
               />
             ))}

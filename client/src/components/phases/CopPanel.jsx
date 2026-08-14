@@ -11,6 +11,7 @@ export default function CopPanel() {
 
   const alive = (room?.players || []).filter((p) => p.alive && p.id !== session?.playerId);
   const select = (p) => socketEmit('cop:investigate', { targetId: p.id });
+  const hasInvestigated = Boolean(copResult);
 
   const resultPlayer = copResult && room?.players?.find((p) => p.id === copResult.targetId);
 
@@ -68,17 +69,24 @@ export default function CopPanel() {
                 onClick={() => select(p)}
                 selected={copResult?.targetId === p.id}
                 right={
-                  <button
-                    onClick={() => select(p)}
-                    className="px-6 py-2 rounded bg-primary-container hover:bg-primary hover:shadow-[0_0_15px_rgba(255,180,168,0.4)] transition-all flex items-center gap-unit"
-                  >
-                    <span className="material-symbols-outlined text-on-primary-container text-[18px] group-hover/btn:scale-110 transition-transform">
-                      search
-                    </span>
-                    <span className="font-label-caps text-label-caps text-on-primary-container uppercase tracking-widest font-bold">
-                      Investigate
-                    </span>
-                  </button>
+                  !hasInvestigated || copResult?.targetId === p.id ? (
+                    <button
+                      onClick={() => select(p)}
+                      disabled={hasInvestigated}
+                      className={`px-6 py-2 rounded transition-all flex items-center gap-unit ${
+                        copResult?.targetId === p.id
+                          ? 'bg-primary shadow-[0_0_15px_rgba(255,180,168,0.4)] cursor-default'
+                          : 'bg-primary-container hover:bg-primary hover:shadow-[0_0_15px_rgba(255,180,168,0.4)]'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-on-primary-container text-[18px] group-hover/btn:scale-110 transition-transform">
+                        search
+                      </span>
+                      <span className="font-label-caps text-label-caps text-on-primary-container uppercase tracking-widest font-bold">
+                        {copResult?.targetId === p.id ? 'Done' : 'Investigate'}
+                      </span>
+                    </button>
+                  ) : null
                 }
               />
             ))}

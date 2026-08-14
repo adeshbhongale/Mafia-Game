@@ -17,7 +17,7 @@ export default function Discussion() {
   const alive = me ? me.alive !== false : true;
 
   return (
-    <div className="flex flex-col w-full h-[calc(100vh-80px)] pb-container-padding-desktop">
+    <div className="flex flex-col w-full min-h-[calc(100vh-80px)] lg:h-[calc(100vh-80px)] pb-container-padding-desktop">
       <div className="px-container-padding-mobile md:px-container-padding-desktop mt-stack-md mb-stack-lg relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-stack-md">
         <div className="flex flex-col">
           <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-[0.2em] mb-unit">
@@ -40,7 +40,7 @@ export default function Discussion() {
 
       <div className="flex flex-col lg:flex-row gap-gutter px-container-padding-mobile md:px-container-padding-desktop flex-1 min-h-0">
         {/* Video / Jitsi area — gets a large share on mobile */}
-        <div className="flex flex-col bg-surface-container rounded-lg shadow-xl relative overflow-hidden h-[44vh] min-h-[260px] lg:h-auto lg:min-h-0 lg:flex-1 lg:min-w-0">
+        <div className="flex flex-col bg-surface-container rounded-lg shadow-xl border border-outline-variant relative overflow-hidden h-[44vh] min-h-[260px] lg:h-auto lg:min-h-0 lg:flex-1 lg:min-w-0">
           <div className="absolute top-0 left-0 w-full p-stack-md bg-gradient-to-b from-surface-container-lowest to-transparent z-10 flex justify-between items-start pointer-events-none">
             <div className="bg-surface-variant/80 backdrop-blur-md px-stack-sm py-unit rounded flex items-center gap-stack-sm pointer-events-auto">
               <div className="w-2 h-2 rounded-full bg-[#00FF00] shadow-[0_0_8px_#00FF00]"></div>
@@ -73,7 +73,7 @@ export default function Discussion() {
           <div className="h-24 lg:h-2/5 shrink-0 lg:shrink">
             <Roster />
           </div>
-          <div className="flex-1 lg:h-3/5 min-h-0">
+          <div className="h-[42vh] min-h-[260px] flex-1 lg:h-3/5 lg:min-h-0">
             <ChatPanel />
           </div>
         </div>
