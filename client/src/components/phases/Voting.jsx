@@ -57,9 +57,9 @@ export default function Voting() {
             return (
               <div
                 key={p.id}
-                onClick={isYou ? undefined : () => cast(p)}
+                onClick={isYou || !alive ? undefined : () => cast(p)}
                 className={`bg-surface-container p-stack-md rounded flex items-center justify-between group relative overflow-hidden ${
-                  isYou
+                  isYou || !alive
                     ? 'opacity-50'
                     : 'cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(139,0,0,0.2)] hover:bg-surface-variant transition-colors'
                 } ${myVote === p.id ? 'ring-1 ring-primary' : ''}`}
@@ -81,7 +81,7 @@ export default function Voting() {
                   {myVote === p.id && (
                     <span className="font-label-caps text-[10px] text-primary bg-primary/10 px-2 py-1 rounded uppercase">Your Vote</span>
                   )}
-                  {!isYou && (
+                  {!isYou && alive && (
                     <button
                       onClick={() => cast(p)}
                       className="px-6 py-2 rounded bg-primary-container hover:bg-primary hover:shadow-[0_0_15px_rgba(255,180,168,0.4)] transition-all"

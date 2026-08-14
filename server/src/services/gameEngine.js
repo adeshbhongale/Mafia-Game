@@ -34,6 +34,9 @@ export const PHASE_TIMES = TEST
       VOTE_RESULT: 7000,
     };
 
+// How long a night-action result (cop result / doctor ack) stays on screen before the game moves on.
+export const ACTION_RESULT_DELAY = 5000;
+
 export const PHASE_NAMES = {
   WELCOME: 'Welcome to Mafia',
   CITY_SLEEP: 'City Sleep',
@@ -313,7 +316,11 @@ export class GameEngine {
 
     room.doctorTarget = targetId;
     this.emitToPlayer(player, 'doctor:ack', { savedId: targetId, savedName: target.username });
-    this.transition(code, 'DOCTOR_SLEEP');
+    // Let the Doctor read the ack for a moment, then move on.
+    setTimeout(() => {
+      const r = this.games.get(code);
+      if (r && r.status === 'PLAYING' && r.phase === 'DOCTOR_WAKE') this.transition(code, 'DOCTOR_SLEEP');
+    }, ACTION_RESULT_DELAY);
     return { ok: true };
   }
 
@@ -334,8 +341,11 @@ export class GameEngine {
     room.copTarget = targetId;
     // Private result — NEVER broadcast to the room.
     this.emitToPlayer(player, 'cop:result', { targetId, isMafia: target.role === 'MAFIA' });
-    // Do NOT transition immediately — stay in COP_WAKE so the Cop can see the
-    // result on screen until the phase timer advances to COP_SLEEP.
+    // Let the Cop read the result for a moment, then move on to COP_SLEEP.
+    setTimeout(() => {
+      const r = this.games.get(code);
+      if (r && r.status === 'PLAYING' && r.phase === 'COP_WAKE') this.transition(code, 'COP_SLEEP');
+    }, ACTION_RESULT_DELAY);
     return { ok: true };
   }
 

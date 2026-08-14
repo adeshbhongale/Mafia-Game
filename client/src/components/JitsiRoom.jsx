@@ -1,10 +1,31 @@
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { JITSI_DOMAIN } from '../config';
 
+// Remember the player's Jitsi profile (name/email/avatar) once they log in
+// (e.g. with Google) so it is kept for future games in this browser.
+const JITSI_PROFILE_KEY = 'mafia_jitsi_profile';
+
+function loadJitsiProfile() {
+  try {
+    return JSON.parse(localStorage.getItem(JITSI_PROFILE_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveJitsiProfile(profile) {
+  try {
+    localStorage.setItem(JITSI_PROFILE_KEY, JSON.stringify(profile));
+  } catch {
+    /* ignore */
+  }
+}
+
 // Minimal Jitsi Meet embed: camera & mic off by default (people only appear /
 // talk when they explicitly enable them), and all distraction options removed
 // (screen share, mute-all, invite, recording, polls, fullscreen, branding...).
 export default function JitsiRoom({ roomName, displayName, onEnd }) {
+  const stored = loadJitsiProfile();
   return (
     <div className="w-full h-full bg-[#0a0a0a] relative">
       <JitsiMeeting
@@ -24,6 +45,9 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
           disableModeratorIndicator: true,
           enableEmailInStats: false,
           disableDeepLinking: true,
+          remoteVideoMenu: {
+            disableKick: true,
+          },
           toolbarButtons: ['microphone', 'camera', 'chat', 'raisehand', 'hangup'],
         }}
         interfaceConfigOverwrite={{
@@ -37,10 +61,21 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
           DEFAULT_REMOTE_DISPLAY_NAME: 'Agent',
           TOOLBAR_BUTTONS: ['microphone', 'camera', 'chat', 'raisehand', 'hangup'],
         }}
-        userInfo={{ displayName }}
+        userInfo={{
+          displayName: stored.displayName || displayName,
+          email: stored.email,
+          avatarURL: stored.avatarURL,
+        }}
         onApiReady={(externalApi) => {
           externalApi.addEventListener('readyToClose', () => {
             if (onEnd) onEnd();
+          });
+          externalApi.addEventListener('videoConferenceJoined', (event) => {
+            saveJitsiProfile({
+              displayName: event.displayName,
+              email: event.email,
+              avatarURL: event.avatarURL,
+            });
           });
         }}
         getIFrameRef={(iframeRef) => {
