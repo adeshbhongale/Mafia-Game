@@ -3,7 +3,7 @@ import { socketEmit } from '../../services/socket';
 import ActionLayout from '../../components/ActionLayout';
 import PlayerRow from '../../components/PlayerRow';
 
-export default function CopPanel() {
+export default function CopPanel({ onLeave }) {
   const room = useGameStore((s) => s.room);
   const session = useGameStore((s) => s.session);
   const phaseEndsAt = useGameStore((s) => s.phaseEndsAt);
@@ -22,6 +22,7 @@ export default function CopPanel() {
         title="Cop Phase"
         subtitle="Cop Wake Up"
         phaseEndsAt={phaseEndsAt}
+        onLeave={onLeave}
         role="COP"
         watermark="Investigate"
         rightHeader={

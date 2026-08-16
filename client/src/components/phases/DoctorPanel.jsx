@@ -1,7 +1,7 @@
-import { useGameStore } from '../../store/gameStore';
-import { socketEmit } from '../../services/socket';
 import ActionLayout from '../../components/ActionLayout';
 import PlayerRow from '../../components/PlayerRow';
+import { socketEmit } from '../../services/socket';
+import { useGameStore } from '../../store/gameStore';
 
 export default function DoctorPanel() {
   const room = useGameStore((s) => s.room);
@@ -48,16 +48,15 @@ export default function DoctorPanel() {
                     <button
                       onClick={() => select(p)}
                       disabled={hasSaved}
-                      className={`px-6 py-2 rounded transition-all flex items-center gap-unit ${
-                        myChoice === p.id
-                          ? 'bg-secondary-container shadow-[0_0_15px_rgba(255,219,60,0.4)] cursor-default'
-                          : 'bg-secondary-container/30 hover:bg-secondary-container hover:shadow-[0_0_15px_rgba(255,219,60,0.4)]'
-                      }`}
+                      className={`px-6 py-2 rounded transition-all flex items-center gap-unit ${myChoice === p.id
+                        ? 'bg-secondary-container shadow-[0_0_15px_rgba(255,219,60,0.4)] cursor-default text-black'
+                        : 'bg-secondary-container/30 hover:bg-secondary hover:shadow-[0_0_15px_rgba(255,219,60,0.4)]'
+                        }`}
                     >
-                      <span className="material-symbols-outlined text-secondary-fixed text-[18px] group-hover/btn:scale-110 transition-transform">
+                      <span className="material-symbols-outlined text-black text-[18px] group-hover/btn:scale-110 transition-transform">
                         favorite
                       </span>
-                      <span className="font-label-caps text-label-caps text-secondary-fixed uppercase tracking-widest font-bold">
+                      <span className="font-label-caps text-label-caps text-black uppercase tracking-widest font-bold">
                         {myChoice === p.id ? 'Saved' : 'Save'}
                       </span>
                     </button>

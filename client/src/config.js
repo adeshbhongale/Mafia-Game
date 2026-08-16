@@ -29,7 +29,10 @@ export function hashString(str) {
   return Math.abs(h);
 }
 
-export const pickAvatar = (username) => {
-  if (!username) return null;
-  return AVATARS[hashString(username) % AVATARS.length];
+export const pickAvatar = (seedOrId, index) => {
+  if (typeof index === 'number' && index >= 0) {
+    return AVATARS[index % AVATARS.length];
+  }
+  if (!seedOrId) return AVATARS[0];
+  return AVATARS[hashString(String(seedOrId)) % AVATARS.length];
 };

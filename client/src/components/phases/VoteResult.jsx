@@ -1,7 +1,7 @@
-import { useGameStore } from '../../store/gameStore';
 import GameTimer from '../../components/GameTimer';
+import { useGameStore } from '../../store/gameStore';
 
-export default function VoteResult() {
+export default function VoteResult({ onLeave }) {
   const voteResult = useGameStore((s) => s.voteResult);
   const phaseEndsAt = useGameStore((s) => s.phaseEndsAt);
 
@@ -40,7 +40,21 @@ export default function VoteResult() {
           </>
         )}
 
-        {phaseEndsAt && <GameTimer phaseEndsAt={phaseEndsAt} large className="mt-stack-md" />}
+        {phaseEndsAt && (
+          <div className="flex items-center gap-3 mt-stack-md">
+            {onLeave && (
+              <button
+                onClick={onLeave}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-on-error-container transition-colors font-label-caps text-[12px] uppercase tracking-wider"
+                title="Leave Game"
+              >
+                <span className="material-symbols-outlined text-[16px] text-error">logout</span>
+                <span>Leave</span>
+              </button>
+            )}
+            <GameTimer phaseEndsAt={phaseEndsAt} large />
+          </div>
+        )}
       </div>
     </div>
   );

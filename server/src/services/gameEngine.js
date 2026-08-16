@@ -22,7 +22,7 @@ export const PHASE_TIMES = TEST
   : {
       WELCOME: 5000,
       CITY_SLEEP: 2000,
-      MAFIA_WAKE: 30000,
+      MAFIA_WAKE: 60000,
       MAFIA_SLEEP: 1500,
       DOCTOR_WAKE: 30000,
       DOCTOR_SLEEP: 1500,
@@ -255,6 +255,35 @@ export class GameEngine {
     this.emitToGame(code, 'jitsi:end', {});
   }
 
+  broadcastMafiaVotes(code) {
+    const room = this.games.get(code);
+    if (!room) return;
+    const mafiaAlive = room.players.filter((p) => p.alive && p.role === 'MAFIA');
+    const choices = {};
+    const counts = {};
+    mafiaAlive.forEach((p) => {
+      if (p.mafiaChoice) {
+        choices[p.playerId] = p.mafiaChoice;
+        counts[p.mafiaChoice] = (counts[p.mafiaChoice] || 0) + 1;
+      }
+    });
+    const allVoted = mafiaAlive.length > 0 && mafiaAlive.every((p) => p.mafiaChoice);
+    const firstChoice = mafiaAlive[0]?.mafiaChoice;
+    const isUnanimous = allVoted && mafiaAlive.every((p) => p.mafiaChoice === firstChoice);
+
+    mafiaAlive.forEach((p) => {
+      this.emitToPlayer(p, 'mafia:team_votes', {
+        myChoice: p.mafiaChoice || null,
+        choices,
+        counts,
+        totalMafia: mafiaAlive.length,
+        votedCount: Object.keys(choices).length,
+        isUnanimous,
+        unanimousTarget: isUnanimous ? firstChoice : null,
+      });
+    });
+  }
+
   mafiaVote(code, playerId, targetId) {
     const room = this.games.get(code);
     if (!room || room.status !== 'PLAYING') return { ok: false, error: 'Game is not running.' };
@@ -271,11 +300,15 @@ export class GameEngine {
 
     player.mafiaChoice = targetId;
     this.emitToPlayer(player, 'mafia:vote_update', { myChoice: targetId });
+    this.broadcastMafiaVotes(code);
 
-    // Early resolve when every living Mafia member has submitted.
+    // Only early resolve when EVERY living Mafia member has chosen the EXACT SAME target.
+    // If there are 2/3 mafias and they disagree or haven't all chosen the same target, the timer does NOT stop.
     const mafiaAlive = room.players.filter((p) => p.alive && p.role === 'MAFIA');
-    const submitted = mafiaAlive.filter((p) => p.mafiaChoice);
-    if (submitted.length >= mafiaAlive.length) {
+    const allVoted = mafiaAlive.length > 0 && mafiaAlive.every((p) => p.mafiaChoice);
+    const isUnanimous = allVoted && mafiaAlive.every((p) => p.mafiaChoice === targetId);
+
+    if (isUnanimous) {
       this.resolveMafia(code);
       this.closeJitsi(code);
       this.transition(code, 'MAFIA_SLEEP');
@@ -287,16 +320,18 @@ export class GameEngine {
     const room = this.games.get(code);
     if (!room) return;
     const mafia = room.players.filter((p) => p.alive && p.role === 'MAFIA');
-    const counts = {};
-    mafia.forEach((p) => {
-      if (p.mafiaChoice) counts[p.mafiaChoice] = (counts[p.mafiaChoice] || 0) + 1;
-    });
     let targetId = null;
-    const ids = Object.keys(counts);
-    if (ids.length) {
-      const max = Math.max(...Object.values(counts));
-      const top = ids.filter((k) => counts[k] === max);
-      targetId = top.length === 1 ? top[0] : top[Math.floor(Math.random() * top.length)];
+    if (mafia.length === 1) {
+      targetId = mafia[0].mafiaChoice || null;
+    } else if (mafia.length > 1) {
+      const firstChoice = mafia[0].mafiaChoice;
+      const isUnanimous = firstChoice && mafia.every((p) => p.mafiaChoice === firstChoice);
+      if (isUnanimous) {
+        targetId = firstChoice;
+      } else {
+        // Mafias failed to reach unanimous agreement on one target before timer ran out
+        targetId = null;
+      }
     }
     room.mafiaTarget = targetId;
   }
@@ -603,8 +638,10 @@ export class GameEngine {
       socket.emit('mafia:jitsi', { roomName: `mafia-${room.roomCode}-${room.round}` });
     if (room.phase === 'DISCUSSION' && player.alive)
       socket.emit('game:jitsi', { roomName: `discussion-${room.roomCode}-${room.round}` });
-    if (room.phase === 'MAFIA_WAKE' && player.role === 'MAFIA' && player.alive)
+    if (room.phase === 'MAFIA_WAKE' && player.role === 'MAFIA' && player.alive) {
       socket.emit('mafia:vote_update', { myChoice: player.mafiaChoice || null });
+      this.broadcastMafiaVotes(room.roomCode);
+    }
     if (room.phase === 'DOCTOR_WAKE' && player.role === 'DOCTOR' && room.doctorTarget)
       socket.emit('doctor:ack', { savedId: room.doctorTarget });
     if (room.phase === 'COP_WAKE' && player.role === 'COP' && room.copTarget) {

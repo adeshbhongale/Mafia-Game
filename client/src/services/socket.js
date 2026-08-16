@@ -73,6 +73,8 @@ function wire(socket) {
       jitsi: null,
       copResult: null,
       myChoice: null,
+      mafiaVotes: {},
+      mafiaVoteStatus: null,
       myVote: null,
       votes: {},
       votedCount: 0,
@@ -84,6 +86,19 @@ function wire(socket) {
   socket.on('jitsi:end', () => useGameStore.getState().set({ jitsi: null }));
 
   socket.on('mafia:vote_update', (d) => useGameStore.getState().set({ myChoice: d.myChoice || null }));
+  socket.on('mafia:team_votes', (d) =>
+    useGameStore.getState().set({
+      myChoice: d.myChoice || null,
+      mafiaVotes: d.choices || {},
+      mafiaVoteStatus: {
+        counts: d.counts || {},
+        totalMafia: d.totalMafia || 0,
+        votedCount: d.votedCount || 0,
+        isUnanimous: d.isUnanimous || false,
+        unanimousTarget: d.unanimousTarget || null,
+      },
+    })
+  );
   socket.on('doctor:ack', (d) => useGameStore.getState().set({ myChoice: d.savedId || null }));
   socket.on('cop:result', (d) =>
     useGameStore.getState().set({ copResult: { targetId: d.targetId, isMafia: d.isMafia }, myChoice: d.targetId })

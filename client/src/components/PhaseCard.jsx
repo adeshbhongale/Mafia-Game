@@ -9,9 +9,8 @@ export default function PhaseCard({ title, subtitle, timer, phaseEndsAt, glitch 
           Current Phase
         </span>
         <h1
-          className={`font-display-lg text-display-lg ${danger ? 'text-error' : 'text-on-surface'} uppercase ${
-            glitch ? 'glitch-text' : ''
-          }`}
+          className={`font-display-lg text-display-lg ${danger ? 'text-error' : 'text-on-surface'} uppercase ${glitch ? 'glitch-text' : ''
+            }`}
           data-text={title}
         >
           {title}

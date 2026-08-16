@@ -2,7 +2,7 @@ import { useGameStore } from '../../store/gameStore';
 import IdentityCard from '../../components/IdentityCard';
 import GameTimer from '../../components/GameTimer';
 
-export default function Welcome() {
+export default function Welcome({ onLeave }) {
   const phaseEndsAt = useGameStore((s) => s.phaseEndsAt);
   const role = useGameStore((s) => s.role);
   const roleCounts = useGameStore((s) => s.roleCounts);
@@ -57,7 +57,22 @@ export default function Welcome() {
         )}
 
         <IdentityCard role={role} />
-        <GameTimer phaseEndsAt={phaseEndsAt} large className="mt-stack-md" />
+        
+        {phaseEndsAt && (
+          <div className="flex items-center gap-3 mt-stack-md">
+            {onLeave && (
+              <button
+                onClick={onLeave}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-on-error-container transition-colors font-label-caps text-[12px] uppercase tracking-wider"
+                title="Leave Game"
+              >
+                <span className="material-symbols-outlined text-[16px] text-error">logout</span>
+                <span>Leave</span>
+              </button>
+            )}
+            <GameTimer phaseEndsAt={phaseEndsAt} large />
+          </div>
+        )}
       </div>
     </div>
   );

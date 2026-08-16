@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../components/Avatar';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import HowToPlayModal from '../components/HowToPlayModal';
 import { api, clearSession } from '../services/api';
 import { rejoin, socketEmit } from '../services/socket';
 import { saveSession, useGameStore } from '../store/gameStore';
@@ -21,11 +22,36 @@ export default function Lobby() {
   const [joining, setJoining] = useState(false);
   const [showDiscard, setShowDiscard] = useState(false);
   const [pendingNav, setPendingNav] = useState(null);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   const players = room?.players || [];
   const isHost = session?.playerId === room?.hostId;
   const canStart = players.length >= (room?.minPlayers || 5);
   const link = `${window.location.origin}/lobby/${roomCode}`;
+
+  // Unload guard: prevent leaving/closing by accident without confirmation
+  useEffect(() => {
+    if (!session || session.roomCode !== roomCode) return;
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [session, roomCode]);
+
+  // Back button (popstate) guard: intercept browser back button to show confirmation
+  useEffect(() => {
+    if (!session || session.roomCode !== roomCode) return;
+    window.history.pushState({ inRoom: true }, '');
+    const handlePopState = () => {
+      window.history.pushState({ inRoom: true }, '');
+      setShowDiscard(true);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [session, roomCode]);
 
   // If the game starts, move to the game page.
   useEffect(() => {
@@ -171,7 +197,7 @@ export default function Lobby() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header active="home" onBlockNav={handleNavAttempt} />
+      <Header active="home" onBlockNav={handleNavAttempt} onHowToPlay={() => setShowHowToPlay(true)} />
       <main className="relative pt-20 min-h-screen w-full bg-background">
         <div className="flex flex-col w-full relative min-h-[calc(100vh-80px)] overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,0,0,0.1)_0%,rgba(19,19,19,1)_80%)] z-0"></div>
@@ -234,7 +260,7 @@ export default function Lobby() {
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       <div className="flex items-center gap-stack-md relative z-10">
-                        <Avatar username={p.username} size="md" />
+                        <Avatar id={p.id} username={p.username} index={i} size="md" />
                         <div className="flex flex-col">
                           <span className={`font-headline-md text-[20px] leading-tight ${p.isHost ? 'text-secondary' : 'text-on-surface group-hover:text-white transition-colors'}`}>
                             {p.username}
@@ -371,6 +397,8 @@ export default function Lobby() {
           </div>
         </div>
       )}
+
+      {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
     </div>
   );
 }

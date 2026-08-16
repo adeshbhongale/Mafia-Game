@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { pickAvatar } from '../config';
 
-export default function Avatar({ username, size = 'md', className = '', rounded = 'rounded' }) {
+export default function Avatar({ id, username, index, size = 'md', className = '', rounded = 'rounded' }) {
   const [err, setErr] = useState(false);
-  const src = pickAvatar(username);
+  const src = pickAvatar(id || username, index);
   const initial = username ? username[0].toUpperCase() : '?';
 
   const sizeCls = {

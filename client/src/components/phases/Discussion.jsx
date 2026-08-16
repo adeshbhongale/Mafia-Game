@@ -1,9 +1,9 @@
-import { useGameStore } from '../../store/gameStore';
-import JitsiRoom from '../../components/JitsiRoom';
 import ChatPanel from '../../components/ChatPanel';
-import Roster from '../../components/Roster';
 import GameTimer from '../../components/GameTimer';
+import JitsiRoom from '../../components/JitsiRoom';
+import Roster from '../../components/Roster';
 import { HOME_BG_URL } from '../../config';
+import { useGameStore } from '../../store/gameStore';
 
 export default function Discussion() {
   const room = useGameStore((s) => s.room);
@@ -29,8 +29,6 @@ export default function Discussion() {
           </h1>
         </div>
         <div className="self-start md:self-auto flex items-center gap-stack-md bg-surface-container-high px-stack-md py-stack-sm rounded shadow-md relative overflow-hidden group">
-          <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
-          <span className="material-symbols-outlined text-primary animate-pulse">timer</span>
           <div className="flex flex-col">
             <span className="font-label-caps text-[10px] text-on-surface-variant uppercase">Time Remaining</span>
             <GameTimer phaseEndsAt={phaseEndsAt} />
@@ -48,7 +46,7 @@ export default function Discussion() {
             </div>
           </div>
           {alive && jitsi ? (
-            <JitsiRoom roomName={jitsi.roomName} displayName={session?.username || 'Agent'} onEnd={() => set({ jitsi: null })} />
+            <JitsiRoom roomName={jitsi.roomName} displayName={session?.username || 'Agent'} />
           ) : (
             <div className="flex-1 relative flex flex-col items-center justify-center overflow-hidden">
               <img src={HOME_BG_URL} alt="Mafia" className="absolute inset-0 w-full h-full object-cover opacity-60" />

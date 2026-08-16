@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import HowToPlayModal from '../components/HowToPlayModal';
 import { api, clearSession } from '../services/api';
 import { rejoin, socketEmit } from '../services/socket';
 import { useGameStore } from '../store/gameStore';
@@ -42,6 +43,31 @@ export default function Game() {
   const error = useGameStore((s) => s.error);
   const set = useGameStore((s) => s.set);
   const [showLeave, setShowLeave] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
+
+  // Unload guard: browser prompt on close tab / refresh
+  useEffect(() => {
+    if (!session) return;
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [session]);
+
+  // Back button (popstate) guard: intercept browser back button to show confirmation
+  useEffect(() => {
+    if (!session) return;
+    window.history.pushState({ inGame: true }, '');
+    const handlePopState = () => {
+      window.history.pushState({ inGame: true }, '');
+      setShowLeave(true);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [session]);
 
   // Confirm leaving the game before heading home.
   const leaveGame = async () => {
@@ -74,32 +100,34 @@ export default function Game() {
   const me = room?.players?.find((p) => p.id === session?.playerId);
   const alive = me ? me.alive !== false : true;
 
+  const handleLeave = () => setShowLeave(true);
+
   const renderPhase = () => {
     switch (phase) {
       case 'WELCOME':
-        return <Welcome />;
+        return <Welcome onLeave={handleLeave} />;
       case 'CITY_SLEEP':
-        return <CitySleep />;
+        return <CitySleep onLeave={handleLeave} />;
       case 'MAFIA_WAKE':
-        return role === 'MAFIA' && alive ? <MafiaPanel /> : <NightWait />;
+        return role === 'MAFIA' && alive ? <MafiaPanel onLeave={handleLeave} /> : <NightWait onLeave={handleLeave} />;
       case 'MAFIA_SLEEP':
       case 'DOCTOR_SLEEP':
       case 'COP_SLEEP':
-        return <NightWait />;
+        return <NightWait onLeave={handleLeave} />;
       case 'DOCTOR_WAKE':
-        return role === 'DOCTOR' && alive ? <DoctorPanel /> : <NightWait />;
+        return role === 'DOCTOR' && alive ? <DoctorPanel onLeave={handleLeave} /> : <NightWait onLeave={handleLeave} />;
       case 'COP_WAKE':
-        return role === 'COP' && alive ? <CopPanel /> : <NightWait />;
+        return role === 'COP' && alive ? <CopPanel onLeave={handleLeave} /> : <NightWait onLeave={handleLeave} />;
       case 'CITY_WAKE':
-        return <NightResult />;
+        return <NightResult onLeave={handleLeave} />;
       case 'DISCUSSION':
-        return <Discussion />;
+        return <Discussion onLeave={handleLeave} />;
       case 'VOTING':
-        return <Voting />;
+        return <Voting onLeave={handleLeave} />;
       case 'VOTE_RESULT':
-        return <VoteResult />;
+        return <VoteResult onLeave={handleLeave} />;
       case 'GAME_OVER':
-        return <GameOver />;
+        return <GameOver onLeave={handleLeave} />;
       default:
         return <LoadingScreen />;
     }
@@ -107,7 +135,7 @@ export default function Game() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onBlockNav={() => setShowLeave(true)} />
+      <Header onBlockNav={handleLeave} onHowToPlay={() => setShowHowToPlay(true)} />
       <main className="relative pt-20 min-h-screen w-full bg-background">
         <div className="flex flex-col w-full min-h-[calc(100vh-80px)] bg-background relative overflow-hidden">
           {renderPhase()}
@@ -118,15 +146,6 @@ export default function Game() {
               {error}
             </div>
           )}
-
-          {/* Exit */}
-          <button
-            onClick={() => setShowLeave(true)}
-            className="fixed bottom-12 right-4 z-[60] w-10 h-10 rounded-full bg-surface-variant/80 backdrop-blur-md flex items-center justify-center hover:bg-surface-bright transition-colors shadow-lg"
-            title="Exit game"
-          >
-            <span className="material-symbols-outlined text-on-surface-variant text-[20px]">logout</span>
-          </button>
         </div>
       </main>
 
@@ -157,6 +176,8 @@ export default function Game() {
           </div>
         </div>
       )}
+
+      {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
 
       <Footer />
     </div>

@@ -1,9 +1,9 @@
-import { useGameStore } from '../../store/gameStore';
 import GameTimer from '../../components/GameTimer';
 import IdentityCard from '../../components/IdentityCard';
+import { useGameStore } from '../../store/gameStore';
 
 // Shown to players who have no action during a night sub-phase (or who are dead-spectating).
-export default function NightWait() {
+export default function NightWait({ onLeave }) {
   const phaseMessage = useGameStore((s) => s.phaseMessage);
   const phaseEndsAt = useGameStore((s) => s.phaseEndsAt);
   const role = useGameStore((s) => s.role);
@@ -23,7 +23,21 @@ export default function NightWait() {
         <p className="font-body-lg text-body-lg text-on-surface-variant opacity-70 uppercase tracking-[0.2em]">
           {alive ? phaseMessage : 'You are watching as a spectator.'}
         </p>
-        {phaseEndsAt && <GameTimer phaseEndsAt={phaseEndsAt} large />}
+        {phaseEndsAt && (
+          <div className="flex items-center gap-3">
+            {onLeave && (
+              <button
+                onClick={onLeave}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-on-error-container transition-colors font-label-caps text-[12px] uppercase tracking-wider"
+                title="Leave Game"
+              >
+                <span className="material-symbols-outlined text-[16px] text-error">logout</span>
+                <span>Leave</span>
+              </button>
+            )}
+            <GameTimer phaseEndsAt={phaseEndsAt} large />
+          </div>
+        )}
         <div className="mt-stack-md opacity-80">
           <IdentityCard role={role} />
         </div>

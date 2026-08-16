@@ -1,3 +1,5 @@
+import Avatar from './Avatar';
+
 export default function PlayerRow({ player, isYou, meta, metaTone = 'text-primary', onClick, disabled, selected, right, leftAccent }) {
   return (
     <div
@@ -12,11 +14,7 @@ export default function PlayerRow({ player, isYou, meta, metaTone = 'text-primar
         className={`absolute left-0 top-0 w-1 h-full transition-colors ${selected ? 'bg-primary' : leftAccent || 'bg-surface-variant'}`}
       ></div>
       <div className="flex items-center gap-stack-md">
-        <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center group-hover:bg-surface-dim transition-colors">
-          <span className="font-headline-md text-headline-md text-on-surface">
-            {(player.username || '?')[0].toUpperCase()}
-          </span>
-        </div>
+        <Avatar id={player.id} username={player.username} size="sm" rounded="rounded-full" className="w-10 h-10 shrink-0" />
         <div className="flex flex-col">
           <span className="font-body-md text-body-md text-on-surface font-bold group-hover:text-primary transition-colors">
             {player.username}

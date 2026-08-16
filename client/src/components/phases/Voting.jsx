@@ -1,8 +1,9 @@
-import { useGameStore } from '../../store/gameStore';
-import { socketEmit } from '../../services/socket';
+import Avatar from '../../components/Avatar';
 import ChatPanel from '../../components/ChatPanel';
-import Roster from '../../components/Roster';
 import GameTimer from '../../components/GameTimer';
+import Roster from '../../components/Roster';
+import { socketEmit } from '../../services/socket';
+import { useGameStore } from '../../store/gameStore';
 
 export default function Voting() {
   const room = useGameStore((s) => s.room);
@@ -58,17 +59,14 @@ export default function Voting() {
               <div
                 key={p.id}
                 onClick={isYou || !alive ? undefined : () => cast(p)}
-                className={`bg-surface-container p-stack-md rounded flex items-center justify-between group relative overflow-hidden ${
-                  isYou || !alive
+                className={`bg-surface-container p-stack-md rounded flex items-center justify-between group relative overflow-hidden ${isYou || !alive
                     ? 'opacity-50'
                     : 'cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(139,0,0,0.2)] hover:bg-surface-variant transition-colors'
-                } ${myVote === p.id ? 'ring-1 ring-primary' : ''}`}
+                  } ${myVote === p.id ? 'ring-1 ring-primary' : ''}`}
               >
                 <div className={`absolute left-0 top-0 w-1 h-full ${myVote === p.id ? 'bg-primary' : 'bg-surface-variant'}`}></div>
                 <div className="flex items-center gap-stack-md">
-                  <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center">
-                    <span className="font-headline-md text-headline-md text-on-surface">{p.username[0].toUpperCase()}</span>
-                  </div>
+                  <Avatar id={p.id} username={p.username} size="sm" rounded="rounded-full" className="w-10 h-10 shrink-0" />
                   <div className="flex flex-col">
                     <span className="font-body-md text-body-md text-on-surface font-bold group-hover:text-primary transition-colors">
                       {p.username}

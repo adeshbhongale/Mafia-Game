@@ -6,6 +6,7 @@ export default function ActionLayout({
   subtitle,
   timer,
   phaseEndsAt,
+  onLeave,
   role,
   comms,
   rightHeader,
@@ -18,7 +19,7 @@ export default function ActionLayout({
     <div className="w-full max-w-[1440px] mx-auto px-container-padding-mobile md:px-container-padding-desktop py-stack-lg relative z-10 grid grid-cols-12 gap-gutter">
       {/* Left column: command & status */}
       <div className="col-span-12 md:col-span-4 lg:col-span-3 flex flex-col gap-stack-lg">
-        <PhaseCard title={title} subtitle={subtitle} timer={timer} phaseEndsAt={phaseEndsAt} glitch={glitch} danger={danger} />
+        <PhaseCard title={title} subtitle={subtitle} timer={timer} phaseEndsAt={phaseEndsAt} onLeave={onLeave} glitch={glitch} danger={danger} />
         <IdentityCard role={role} />
         {comms}
       </div>

@@ -1,4 +1,5 @@
 import { useGameStore } from '../store/gameStore';
+import Avatar from './Avatar';
 
 // Public roster — username, alive/dead, connected/disconnected. Never reveals roles.
 export default function Roster({ compact = false }) {
@@ -18,7 +19,7 @@ export default function Roster({ compact = false }) {
         </span>
       </div>
       <div className={`flex-1 overflow-y-auto custom-scrollbar ${compact ? 'p-stack-sm' : 'p-stack-md'} space-y-unit`}>
-        {players.map((p) => {
+        {players.map((p, i) => {
           const isYou = p.id === session?.playerId;
           return (
             <div
@@ -27,12 +28,13 @@ export default function Roster({ compact = false }) {
                 p.alive ? 'bg-surface hover:bg-surface-variant transition-colors' : 'bg-surface/40 opacity-50'
               }`}
             >
+              <Avatar id={p.id} username={p.username} index={i} size="sm" rounded="rounded-full" className="w-6 h-6 shrink-0" />
               <div
-                className={`w-2 h-2 rounded-full ${
+                className={`w-2 h-2 rounded-full shrink-0 ${
                   p.alive ? (p.connected ? 'bg-[#00FF00] shadow-[0_0_6px_#00FF00]' : 'bg-error') : 'bg-on-surface-variant/40'
                 }`}
               ></div>
-              <span className="font-body-md text-body-md text-on-surface font-bold">
+              <span className="font-body-md text-body-md text-on-surface font-bold truncate">
                 {p.username}
                 {isYou ? ' (You)' : ''}
               </span>

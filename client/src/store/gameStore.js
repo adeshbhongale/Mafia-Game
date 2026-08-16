@@ -47,6 +47,8 @@ export const useGameStore = create((set, get) => ({
   teammates: [],
   jitsi: null,
   myChoice: null,
+  mafiaVotes: {}, // { [playerId]: targetId }
+  mafiaVoteStatus: null, // { counts, totalMafia, votedCount, isUnanimous, unanimousTarget }
   copResult: null,
 
   // voting
@@ -80,6 +82,8 @@ export const useGameStore = create((set, get) => ({
       teammates: [],
       jitsi: null,
       myChoice: null,
+      mafiaVotes: {},
+      mafiaVoteStatus: null,
       copResult: null,
       votes: {},
       votedCount: 0,

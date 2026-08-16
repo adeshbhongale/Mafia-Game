@@ -41,15 +41,16 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
           disablePolls: true,
           disableRecording: true,
           enableClosePage: false,
+          enableWelcomePage: false,
           hideConferenceSubject: true,
           hideConferenceTimer: true,
-          disableModeratorIndicator: true,
           enableEmailInStats: false,
           disableDeepLinking: true,
           remoteVideoMenu: {
             disableKick: true,
+            disableGrantModerator: true,
           },
-          toolbarButtons: ['microphone', 'camera', 'chat', 'raisehand', 'hangup'],
+          toolbarButtons: ['microphone', 'camera', 'chat', 'raisehand', 'tileview'],
         }}
         interfaceConfigOverwrite={{
           SHOW_JITSI_WATERMARK: false,
@@ -57,10 +58,12 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
           SHOW_BRAND_WATERMARK: false,
           SHOW_POWERED_BY: false,
           SHOW_CHROME_EXTENSION_BANNER: false,
+          SHOW_PROMOTIONAL_CLOSE_PAGE: false,
           MOBILE_APP_PROMO: false,
+          HIDE_DEEP_LINKING_LOGO: true,
           DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
           DEFAULT_REMOTE_DISPLAY_NAME: 'Agent',
-          TOOLBAR_BUTTONS: ['microphone', 'camera', 'chat', 'raisehand', 'hangup'],
+          TOOLBAR_BUTTONS: ['microphone', 'camera', 'chat', 'raisehand', 'tileview'],
         }}
         userInfo={{
           displayName: stored.displayName || displayName,
@@ -72,12 +75,18 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
             if (onEnd) onEnd();
           });
           let gridEnabled = false;
+          const handleProfileUpdate = (event) => {
+            if (event && (event.displayName || event.email || event.avatarURL)) {
+              saveJitsiProfile({
+                displayName: event.displayName || stored.displayName || displayName,
+                email: event.email || stored.email,
+                avatarURL: event.avatarURL || stored.avatarURL,
+              });
+            }
+          };
+
           externalApi.addEventListener('videoConferenceJoined', (event) => {
-            saveJitsiProfile({
-              displayName: event.displayName,
-              email: event.email,
-              avatarURL: event.avatarURL,
-            });
+            handleProfileUpdate(event);
             // Show everyone in a grid (Google Meet style) once in the meeting.
             if (!gridEnabled) {
               gridEnabled = true;
@@ -90,11 +99,14 @@ export default function JitsiRoom({ roomName, displayName, onEnd }) {
               }, 1200);
             }
           });
+
+          externalApi.addEventListener('participantInfoChanged', handleProfileUpdate);
         }}
         getIFrameRef={(iframeRef) => {
           iframeRef.style.height = '100%';
           iframeRef.style.width = '100%';
           iframeRef.style.border = 'none';
+          iframeRef.allow = 'camera; microphone; display-capture; autoplay; clipboard-write; encrypted-media; fullscreen';
         }}
       />
     </div>
